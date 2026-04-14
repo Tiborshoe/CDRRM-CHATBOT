@@ -55,6 +55,13 @@ app.post('/webhook', async (req, res) => {
           // 2. SEND TO STRIDE SYSTEM (REPLACE URL WITH YOUR ACTUAL BRIDGE URL)
           // await axios.post('https://your-stride-system.com/api/reports', finalStrideData);
 
+          try {
+                await axios.post('https://hooks.zapier.com/hooks/catch/16350419/u7vs0zv/', finalStrideData);
+                console.log("Successfully sent to Zapier!");
+          } catch (error) {
+                console.error("Zapier Send Error:", error.message);
+          }
+
           // 3. REPLY TO CITIZEN
           await sendMessengerReply(sender_psid, "Thank you. We have received your report for " + aiReport.LOCATION + ". Our commander is reviewing it now.");
 
