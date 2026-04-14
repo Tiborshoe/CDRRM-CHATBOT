@@ -25,23 +25,24 @@ app.post('/webhook', async (req, res) => {
         console.log("Raw Citizen Report:", userText);
 
         try {
-          // Using the modern Gemini 3 Flash model
-          const response = await ai.models.generateContent({
-            model: "gemini-3-flash-preview", // The current 2026 workhorse
-            contents: userText,
-            config: {
-              systemInstruction: `
-                You are a Disaster Response Assistant for a CDRRMO in the Philippines.
-                Analyze the input (Bisaya, Tagalog, or English).
-                Extract the data into this EXACT JSON format:
-                {
-                  "STATUS": "Critical, Warning, or Information",
-                  "LOCATION": "Extracted location",
-                  "REPORT": "Summary in English"
-                }
-              `
-            }
-          });
+          // ... (inside your webhook post)
+            const response = await ai.models.generateContent({
+                model: "gemini-3-flash", // Use the stable 2026 Flash model
+                contents: userText,
+                config: {
+                 systemInstruction: `
+                    You are a Disaster Response Assistant for a CDRRMO in the Philippines.
+                    Analyze the input (Bisaya, Tagalog, or English).
+                    Extract the data into this EXACT JSON format:
+                         {
+                            "STATUS": "Critical, Warning, or Information",
+                             "LOCATION": "Extracted location",
+                             "REPORT": "Summary in English"
+                        }
+                    `
+                     }
+});
+// ...
 
           // In the new SDK, text is a property, not a function
           const jsonReport = response.text; 
