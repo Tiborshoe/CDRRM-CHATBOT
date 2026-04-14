@@ -1,17 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai"); // New library import
 
 const app = express().use(bodyParser.json());
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Initialize the new 2026 GenAI client
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const VERIFY_TOKEN = "CDRRMO_SECRET_2026";
 
 app.get('/webhook', (req, res) => {
-  // ... (Keep your handshake code the same)
+  // ... Keep your handshake code the same
 });
 
 app.post('/webhook', async (req, res) => {
@@ -26,29 +25,30 @@ app.post('/webhook', async (req, res) => {
         console.log("Raw Citizen Report:", userText);
 
         try {
-          // --- THE GEMINI BRAIN PART ---
-          const prompt = `
-            You are a Disaster Response Assistant for a CDRRMO in the Philippines.
-            Analyze this message (which may be in English, Tagalog, or Bisaya): "${userText}"
-            
-            Extract the data and return ONLY a valid JSON object with these keys:
-            {
-              "STATUS": "Critical, Warning, or Information",
-              "LOCATION": "Extracted location from text",
-              "REPORT": "A short summary in English"
+          // Using the modern Gemini 3 Flash model
+          const response = await ai.models.generateContent({
+            model: "gemini-3-flash-preview", // The current 2026 workhorse
+            contents: userText,
+            config: {
+              systemInstruction: `
+                You are a Disaster Response Assistant for a CDRRMO in the Philippines.
+                Analyze the input (Bisaya, Tagalog, or English).
+                Extract the data into this EXACT JSON format:
+                {
+                  "STATUS": "Critical, Warning, or Information",
+                  "LOCATION": "Extracted location",
+                  "REPORT": "Summary in English"
+                }
+              `
             }
-          `;
+          });
 
-          const result = await model.generateContent(prompt);
-          const response = await result.response;
-          const jsonReport = response.text();
-
+          // In the new SDK, text is a property, not a function
+          const jsonReport = response.text; 
           console.log("Structured JSON for STRIDE:", jsonReport);
           
-          // PHASE 3 will be sending this 'jsonReport' to your STRIDE system!
-          
         } catch (error) {
-          console.error("Gemini Error:", error);
+          console.error("Gemini Error:", error.message);
         }
       }
     }
@@ -58,4 +58,4 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 1337, () => console.log('AI Bot is listening...'));
+app.listen(process.env.PORT || 1337, () => console.log('Gemini 3 Bot is listening...'));
