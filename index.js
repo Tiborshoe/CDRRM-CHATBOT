@@ -1,16 +1,26 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { GoogleGenAI } = require("@google/genai"); // New library import
+const { GoogleGenAI } = require("@google/genai");
 
 const app = express().use(bodyParser.json());
 
-// Initialize the new 2026 GenAI client
+// Initialize the 2026 client
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const VERIFY_TOKEN = "CDRRMO_SECRET_2026";
 
 app.get('/webhook', (req, res) => {
-  // ... Keep your handshake code the same
+  // ... (Keep your handshake code exactly as it is)
+  let mode = req.query['hub.mode'];
+  let token = req.query['hub.verify_token'];
+  let challenge = req.query['hub.challenge'];
+  if (mode && token) {
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+      res.status(200).send(challenge);
+    } else {
+      res.sendStatus(403);      
+    }
+  }
 });
 
 app.post('/webhook', async (req, res) => {
@@ -25,28 +35,32 @@ app.post('/webhook', async (req, res) => {
         console.log("Raw Citizen Report:", userText);
 
         try {
-          // ... (inside your webhook post)
-            const response = await ai.models.generateContent({
-                model: "gemini-3-flash", // Use the stable 2026 Flash model
-                contents: userText,
-                config: {
-                 systemInstruction: `
-                    You are a Disaster Response Assistant for a CDRRMO in the Philippines.
-                    Analyze the input (Bisaya, Tagalog, or English).
-                    Extract the data into this EXACT JSON format:
-                         {
-                            "STATUS": "Critical, Warning, or Information",
-                             "LOCATION": "Extracted location",
-                             "REPORT": "Summary in English"
-                        }
-                    `
-                     }
-});
-// ...
+          // CALLING GEMINI 3.1 FLASH PREVIEW
+          const result = await ai.models.generateContent({
+            model: "gemini-3-flash-preview", // Corrected model string
+            contents: userText,
+            config: {
+              // This is the "secret sauce" to get perfect JSON
+              responseMimeType: "application/json", 
+              systemInstruction: `
+                You are a Disaster Response Assistant for a CDRRMO in the Philippines.
+                Analyze the input (Bisaya, Tagalog, or English).
+                Return ONLY a JSON object with this exact schema:
+                {
+                  "STATUS": "Critical, Warning, or Information",
+                  "LOCATION": "Extracted street or barangay",
+                  "REPORT": "English summary"
+                }
+              `
+            }
+          });
 
-          // In the new SDK, text is a property, not a function
-          const jsonReport = response.text; 
+          // In the 2026 SDK, it's result.response.text
+          const jsonReport = result.response.text;
           console.log("Structured JSON for STRIDE:", jsonReport);
+          
+          // --- NEXT STEP PREVIEW ---
+          // This is where you will add: axios.post('STRIDE_URL', JSON.parse(jsonReport))
           
         } catch (error) {
           console.error("Gemini Error:", error.message);
@@ -59,4 +73,4 @@ app.post('/webhook', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 1337, () => console.log('Gemini 3 Bot is listening...'));
+app.listen(process.env.PORT || 1337, () => console.log('Gemini 3 Bot is fully alive!'));
