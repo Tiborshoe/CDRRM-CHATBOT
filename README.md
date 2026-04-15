@@ -1,5 +1,7 @@
-🏛️ CDRRMO Smart Dispatch Bridge (Powered by Gemini 3 Flash)
-Project Overview
+#🏛️ CDRRMO Smart Dispatch Bridge (Powered by Gemini 3 Flash)
+
+
+#Project Overview
 The CDRRMO Smart Dispatch Bridge is an automated emergency response tool designed to bridge the gap between citizens reporting incidents via Facebook Messenger and the STRIDE (System for Tracking & Response to Incident Data Emergencies) system.
 
 Unlike standard chatbots, this system utilizes Multimodal Generative AI (Gemini 3 Flash) to verify, translate, and structure disaster reports in real-time, ensuring that only verified, actionable data reaches the CDRRMO Command Center.
