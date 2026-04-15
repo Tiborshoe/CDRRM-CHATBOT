@@ -21,9 +21,13 @@ async function sendMessengerReply(psid, text) {
 // --- 1. THE MENU SETUP ROUTE ---
 app.get('/setup-menu', async (req, res) => {
   try {
+    // We send ONE request to set the whole Messenger Profile
     const response = await axios.post(
       `https://graph.facebook.com/v21.0/me/messenger_profile?access_token=${PAGE_ACCESS_TOKEN}`,
       {
+        "get_started": {
+          "payload": "GET_STARTED_CLICKED"
+        },
         "persistent_menu": [{
           "locale": "default",
           "composer_input_disabled": false,
@@ -42,11 +46,10 @@ app.get('/setup-menu', async (req, res) => {
         }]
       }
     );
-    res.send("Menu Configuration Successful.");
+    res.send("Messenger Profile (Get Started & Menu) Setup Successful!");
   } catch (error) {
-    // This tells us EXACTLY what Meta doesn't like
-    console.error("META ERROR DATA:", error.response.data);
-    res.status(500).send("Menu Setup Failed. Check Render logs for the exact error from Meta.");
+    console.error("META ERROR DATA:", error.response?.data || error.message);
+    res.status(500).send("Setup Failed. See Render logs for details.");
   }
 });
 
