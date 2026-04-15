@@ -37,12 +37,6 @@ app.get('/setup-menu', async (req, res) => {
               "type": "postback",
               "title": "Emergency Hotlines",
               "payload": "EMERGENCY_HOTLINES"
-            },
-            {
-              "type": "web_url",
-              "title": "Official CDRRMO Portal",
-              "url": "https://www.butuan.gov.ph/", 
-              "webview_height_ratio": "full"
             }
           ]
         }]
@@ -50,7 +44,9 @@ app.get('/setup-menu', async (req, res) => {
     );
     res.send("Menu Configuration Successful.");
   } catch (error) {
-    res.status(500).send("Menu Setup Failed: " + error.message);
+    // This tells us EXACTLY what Meta doesn't like
+    console.error("META ERROR DATA:", error.response.data);
+    res.status(500).send("Menu Setup Failed. Check Render logs for the exact error from Meta.");
   }
 });
 
