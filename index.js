@@ -154,8 +154,18 @@ app.post('/webhook', async (req, res) => {
             IMAGE: imageUrl || "No image provided" // We pass the URL to STRIDE so the Commander can view it
           };
 
+          
+          // THE BRIDGE: Send the clean, verified data to your system
+          try {
+            await axios.post('https://hooks.zapier.com/hooks/catch/YOUR_ZAPIER_ID', finalStrideData);
+            console.log("Successfully bridged to STRIDE/Zapier!");
+          } catch (bridgeError) {
+            console.error("Bridge Delivery Failed:", bridgeError.message);
+          }
           console.log("FINAL VALIDATED JSON FOR STRIDE:", JSON.stringify(finalStrideData, null, 2));
 
+
+          
           // Acknowledge the valid report
           await sendMessengerReply(sender_psid, `Report for ${finalStrideData.LOCATION} is being forwarded to the command center. Stay safe!`);
 
