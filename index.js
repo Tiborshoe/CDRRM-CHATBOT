@@ -160,7 +160,7 @@ app.post('/webhook', async (req, res) => {
         } catch (error) {
           console.error("Processing Error:", error.message);
         }
-      }, 3000); // Wait 3 seconds
+      },20000); // Wait 3 seconds
     }
     res.status(200).send('EVENT_RECEIVED');
   }
